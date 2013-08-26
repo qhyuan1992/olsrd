@@ -439,7 +439,14 @@ olsr_input(int fd, void *data __attribute__ ((unused)), unsigned int flags __att
     }
 
     fromlen = sizeof(struct sockaddr_storage);
+#if defined __linux__ || defined __ANDROID__
+    struct interface *iface;
+    if ((iface = if_ifwithsock(fd)) != NULL) {
+      cc = olsr_recvfrom_ex(fd, inbuf, sizeof(inbuf_aligned), 0, (struct sockaddr *)&from, &fromlen, iface);
+    } else
+#else
     cc = olsr_recvfrom(fd, inbuf, sizeof(inbuf_aligned), 0, (struct sockaddr *)&from, &fromlen);
+#endif
 
     if (cc <= 0) {
       if (cc < 0 && errno != EWOULDBLOCK) {

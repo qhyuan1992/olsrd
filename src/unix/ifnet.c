@@ -702,6 +702,9 @@ chk_if_up(struct olsr_if *iface, int debuglvl __attribute__ ((unused)))
     ifs.olsr_socket = getsocket(BUFSPACE, &ifs);
     ifs.send_socket = getsocket(0, &ifs);
 
+    OLSR_PRINTF(3, "olsr_socket: %d\n", ifs.olsr_socket);
+    OLSR_PRINTF(3, "send_socket: %d\n", ifs.send_socket);
+
     if (ifs.olsr_socket < 0) {
       fprintf(stderr, "Could not initialize socket... exiting!\n\n");
       olsr_syslog(OLSR_LOG_ERR, "Could not initialize socket... exiting!\n\n");

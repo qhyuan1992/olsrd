@@ -108,6 +108,19 @@ static char orig_global_redirect_state;
 static char orig_global_rp_filter;
 static char orig_tunnel_rp_filter;
 
+#if defined __linux__ || defined __ANDROID__
+int
+workaround_bind_socket_to_device(int sock, struct interface *ifp)
+{
+  int on_value = 1;
+
+  OLSR_PRINTF(3, "Doing workaround bind_socket_to_device()\n");
+
+  ifp->is_bind_compat = on_value;
+  return setsockopt(sock, IPPROTO_IP, IP_PKTINFO, &on_value, sizeof(int));
+}
+#endif
+
 /**
  *Bind a socket to a device
  *
@@ -120,11 +133,16 @@ static char orig_tunnel_rp_filter;
 int
 bind_socket_to_device(int sock, char *dev_name)
 {
+  int bind_result;
   /*
    *Bind to device using the SO_BINDTODEVICE flag
    */
   OLSR_PRINTF(3, "Binding socket %d to device %s\n", sock, dev_name);
-  return setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, dev_name, strlen(dev_name) + 1);
+  bind_result = setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, dev_name, strlen(dev_name) + 1);
+  if (bind_result) {
+    OLSR_PRINTF(0, "Error, setsockopt() failed: %s\n", strerror(errno));  
+  }
+  return bind_result;
 }
 
 static int writeToProc(const char *file, char *old, char value) {
@@ -446,12 +464,25 @@ getsocket(int bufspace, struct interface *ifp)
    */
 
   /* Bind to device */
-  if (bind_socket_to_device(sock, ifp->int_name) < 0) {
-    fprintf(stderr, "Could not bind socket to device... exiting!\n\n");
-    syslog(LOG_ERR, "Could not bind socket to device... exiting!\n\n");
-    close(sock);
-    return -1;
+#if defined __linux__ || defined __ANDROID__
+  if (!geteuid()) {
+#endif
+    if (bind_socket_to_device(sock, ifp->int_name) < 0) {
+      fprintf(stderr, "Could not bind socket to device... exiting!\n\n");
+      syslog(LOG_ERR, "Could not bind socket to device... exiting!\n\n");
+      close(sock);
+      return -1;
+    }
+#if defined __linux__ || defined __ANDROID__
+  } else { 
+    if (workaround_bind_socket_to_device(sock, ifp) < 0) {
+      fprintf(stderr, "Could not (workaround) bind socket to device... exiting!\n\n");
+      syslog(LOG_ERR, "Could not (workaround) bind socket to device... exiting!\n\n");
+      close(sock);
+      return -1;
+    }
   }
+#endif
 
   memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET;
@@ -459,6 +490,9 @@ getsocket(int bufspace, struct interface *ifp)
 
   if(bufspace <= 0) {
     sin.sin_addr.s_addr = ifp->int_addr.sin_addr.s_addr;
+  }
+  else {
+    sin.sin_addr.s_addr = INADDR_ANY;
   }
 
   if (bind(sock, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
@@ -541,13 +575,14 @@ getsocket6(int bufspace, struct interface *ifp)
    */
 
   /* Bind to device */
+#if 1
   if (bind_socket_to_device(sock, ifp->int_name) < 0) {
     fprintf(stderr, "Could not bind socket to device... exiting!\n\n");
     syslog(LOG_ERR, "Could not bind socket to device... exiting!\n\n");
     close(sock);
     return -1;
   }
-
+#endif
   memset(&sin, 0, sizeof(sin));
   sin.sin6_family = AF_INET6;
   sin.sin6_port = htons(olsr_cnf->olsrport);
@@ -664,6 +699,58 @@ ssize_t
 olsr_sendto(int s, const void *buf, size_t len, int flags, const struct sockaddr * to, socklen_t tolen)
 {
   return sendto(s, buf, len, flags, to, tolen);
+}
+
+ssize_t
+olsr_recvfrom_ex(int s, void *buf, size_t len, int flags, struct sockaddr * from, socklen_t * fromlen, struct interface *ifp)
+{
+  int recvd_if_index = -1;
+  int recvd_msg_len = 0;
+  struct cmsghdr *ptr;
+  struct iovec iov;
+  struct msghdr msg;
+
+  OLSR_PRINTF(3, "olsr_recvfrom_ex\n");
+
+  if (!ifp->is_bind_compat) {
+    OLSR_PRINTF(3, "bind_compat not set; invoking olsr_recvfrom()\n");
+    return olsr_recvfrom(s, buf, len, flags, from, fromlen);
+  }
+
+  memset(&msg, 0, sizeof(struct msghdr));
+  memset(&iov, 0, sizeof(struct iovec));
+
+  iov.iov_base = buf;
+  iov.iov_len = len;
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_controllen = CMSG_SPACE(sizeof(struct in_pktinfo));
+  msg.msg_control = (void*)malloc(msg.msg_controllen);
+  msg.msg_name = from;
+  msg.msg_namelen = *fromlen;
+
+  do {
+    memset(msg.msg_control, 0, msg.msg_controllen);
+
+    if ((recvd_msg_len = recvmsg(s, &msg, flags)) < 0) {
+      /*
+       * return the actual error when there is an error.
+       */
+      break;
+    }
+    for (ptr = CMSG_FIRSTHDR(&msg); ptr != NULL; ptr = CMSG_NXTHDR(&msg, ptr)) {
+      if (ptr->cmsg_type == IP_PKTINFO) {
+        struct in_pktinfo *info = (struct in_pktinfo*)CMSG_DATA(ptr);
+        recvd_if_index = info->ipi_ifindex;
+      }
+    }
+    OLSR_PRINTF(3, "recvd_if_index vs. ifp->if_index: %d vs. %d\n",
+      recvd_if_index, ifp->if_index);
+  } while (recvd_if_index != ifp->if_index);
+  free(msg.msg_control);
+
+  *fromlen = msg.msg_namelen;
+  return recvd_msg_len;
 }
 
 /**

@@ -56,11 +56,15 @@
 ssize_t olsr_sendto(int, const void *, size_t, int, const struct sockaddr *, socklen_t);
 
 ssize_t olsr_recvfrom(int, void *, size_t, int, struct sockaddr *, socklen_t *);
-
+#if defined __linux__ || defined __ANDROID__
+ssize_t olsr_recvfrom_ex(int, void *, size_t, int, struct sockaddr *, socklen_t *, struct interface *);
+#endif
 int olsr_select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 
 int bind_socket_to_device(int, char *);
-
+#if defined __linux__ || defined __ANDROID__
+int workaround_bind_socket_to_device(int, struct interface *);
+#endif
 int convert_ip_to_mac(union olsr_ip_addr *, struct sockaddr *, char *);
 
 void net_os_set_global_ifoptions(void);

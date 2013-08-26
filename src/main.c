@@ -355,7 +355,7 @@ int main(int argc, char *argv[]) {
   /* Check if user is root */
   if (geteuid()) {
     fprintf(stderr, "You must be root(uid = 0) to run olsrd!\nExiting\n\n");
-    exit(EXIT_FAILURE);
+    //exit(EXIT_FAILURE);
   }
 #else /* _WIN32 */
   DisableIcmpRedirects();

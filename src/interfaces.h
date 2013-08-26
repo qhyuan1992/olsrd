@@ -128,6 +128,7 @@ struct interface {
   /* IP independent */
   union olsr_ip_addr ip_addr;
   int is_hcif;                         /* Is this a emulated host-client if? */
+  int is_bind_compat;
 
   int olsr_socket;                     /* The broadcast socket for this interface */
   int send_socket;                     /* The send socket for this interface */
