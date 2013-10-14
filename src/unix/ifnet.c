@@ -62,7 +62,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <net/if.h>
-#include <net/if_arp.h>
+//#include <net/if_arp.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>

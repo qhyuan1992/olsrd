@@ -115,7 +115,8 @@
 #include <ifaddrs.h>
 #include <net/if_var.h>
 #include <net/ethernet.h>
-#include <netinet/in_var.h>
+//#include <netinet/in_var.h>
+//#include <netinet6/in6_var.h>
 #endif /* __APPLE__ */
 
 #include <net/if_dl.h>
@@ -511,11 +512,13 @@ get_ipv6_address(char *ifname, struct sockaddr_in6 *saddr6, struct olsr_ip_prefi
   struct ifaddrs *ifap, *ifa;
   const struct sockaddr_in6 *sin6 = NULL;
   const union olsr_ip_addr *tmp_ip;
-  struct in6_ifreq ifr6;
+  //struct in6_ifreq ifr6;
   int found = 0;
   int s6;
   u_int32_t flags6;
 
+  return 0;
+/*
   if (getifaddrs(&ifap) != 0) {
     OLSR_PRINTF(3, "get_ipv6_address: getifaddrs() failed.\n");
     return 0;
@@ -556,6 +559,7 @@ get_ipv6_address(char *ifname, struct sockaddr_in6 *saddr6, struct olsr_ip_prefi
     return 1;
 
   return 0;
+  */
 }
 
 /**

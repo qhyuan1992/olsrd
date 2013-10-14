@@ -1,0 +1,61 @@
+#
+# MAC OSX SPECIFIC CONFIGURATION
+#
+
+# don't strip executables and bundles for now until we figure out the proper way
+# to do it (flags).
+STRIP = \#
+
+DESTDIR ?=
+LIBDIR =	$(DESTDIR)/usr/lib
+
+SRCS +=		$(wildcard src/bsd/*.c src/unix/*.c)
+HDRS +=		$(wildcard src/bsd/*.h src/unix/*.h)
+
+#####
+
+IOS_BASE_SDK=6.1
+CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -Isrc/mac/
+ 
+CPP=$(DEVROOT)/usr/bin/llvm-cpp-4.2
+CXX=$(DEVROOT)/usr/bin/llvm-g++-4.2
+CXXCPP=$(DEVROOT)/usr/bin/llvm-cpp-4.2
+CC=$(DEVROOT)/usr/bin/llvm-gcc-4.2
+LD=$(DEVROOT)/usr/bin/ld
+AR=$(DEVROOT)/usr/bin/ar
+AS=$(DEVROOT)/usr/bin/as
+NM=$(DEVROOT)/usr/bin/nm
+RANLIB=$(DEVROOT)/usr/bin/ranlib
+LDFLAGS+=-L$(SDKROOT)/usr/lib/ -L$(SDKROOT)/usr/lib/system -arch armv7
+ 
+CPPFLAGS+=$(CFLAGS)
+CXXFLAGS+=$(CFLAGS)
+
+DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
+SDKROOT=$(DEVROOT)/SDKs/iPhoneOS$(IOS_BASE_SDK).sdk
+ 
+CFLAGS+=-arch armv7 -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/
+ 
+
+#####
+
+LIBS +=		
+
+PLUGIN_SONAME ?= $(PLUGIN_NAME)
+PLUGIN_FULLNAME ?= $(PLUGIN_NAME).so.$(PLUGIN_VER)
+INSTALL_LIB =	install -m 755 $(PLUGIN_FULLNAME) $(LIBDIR)/$(PLUGIN_FULLNAME)
+UNINSTALL_LIB =	rm -f $(LIBDIR)/$(PLUGIN_FULLNAME)
+
+ifdef OLSRD_PLUGIN
+LDFLAGS += -bundle -flat_namespace -undefined suppress
+else
+LDFLAGS += -dynamic
+endif
+
+OS_LIB_PTHREAD =
+OS_CFLAG_PTHREAD =
+OS_LIB_DYNLOAD =
+
+# Local Variables:
+# mode: makefile
+# End:

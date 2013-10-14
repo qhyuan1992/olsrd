@@ -170,13 +170,15 @@ else
 # c and ld flags for main
 ifeq ($(OS),win32)
   LDFLAGS +=	-Wl,-export-all-symbols
-else 
+elsifneq ($(OS),ios) 
   LDFLAGS +=	-Wl,-export-dynamic 
 endif
 LDFLAGS +=	-Wl,-rpath,$(LIBDIR)
 endif
 # LDFLAGS for all 
+ifneq ($(OS),ios)
 LDFLAGS +=	-Wl,--warn-common
+endif
 # See above at "-ffunction-sections" for an explanation (and why it is disabled).
 #LDOPTS +=	-Wl,--gc-sections
 #LDOPTS +=	-Wl,--print-gc-sections
