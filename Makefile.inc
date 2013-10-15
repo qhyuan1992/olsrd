@@ -66,6 +66,7 @@ SHAREDIR ?= $(USRDIR)/share
 DOCDIR   ?= $(SHAREDIR)/doc
 MANDIR   ?= $(SHAREDIR)/man
 EXENAME  ?= olsrd
+LIBNAME  ?= libolsrd.so.1
 CFGNAME  ?= $(EXENAME).conf
 CFGFILE  ?= $(ETCDIR)/$(CFGNAME)
 

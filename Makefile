@@ -68,6 +68,11 @@ ifeq ($(VERBOSE),0)
 endif
 		$(MAKECMDPREFIX)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(LIBNAME):	$(OBJS) src/builddata.o
+ifeq ($(VERBOSE),0)
+		@echo "[LD] $@"
+endif
+		$(MAKECMDPREFIX)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 cfgparser:	$(CFGDEPS) src/builddata.o
 		$(MAKECMDPREFIX)$(MAKECMD) -C $(CFGDIR)
 
@@ -87,7 +92,7 @@ src/builddata.c:
 .PHONY: help libs clean_libs libs_clean clean distclean uberclean install_libs uninstall_libs libs_install libs_uninstall install_bin uninstall_bin install_olsrd uninstall_olsrd install uninstall build_all install_all uninstall_all clean_all gui clean_gui 
 
 clean:
-	-rm -f $(OBJS) $(SRCS:%.c=%.d) $(EXENAME) $(EXENAME).exe src/builddata.c $(TMPFILES)
+	-rm -f $(OBJS) $(SRCS:%.c=%.d) $(EXENAME) $(EXENAME).exe $(LIBNAME) src/builddata.c $(TMPFILES)
 	-rm -f libolsrd.a
 	-rm -f olsr_switch.exe
 	-rm -f gui/win32/Main/olsrd_cfgparser.lib
