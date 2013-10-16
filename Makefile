@@ -193,7 +193,11 @@ else
 ifeq ($(OS),android)
 SUBDIRS := arprefresh bmf dot_draw dyn_gw_plain httpinfo jsoninfo mdp mini nameservice pgraph pud secure sgwdynspeed txtinfo watchdog
 else
+ifeq ($(OS),ios)
+SUBDIRS := jsoninfo stdout
+else
 SUBDIRS := dot_draw dyn_gw dyn_gw_plain httpinfo jsoninfo mini nameservice pgraph secure txtinfo watchdog
+endif
 endif
 endif
 endif

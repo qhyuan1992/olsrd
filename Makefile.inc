@@ -165,8 +165,10 @@ ifeq ($(OS),win32)
   LDFLAGS +=	-Wl,-export-all-symbols,--enable-auto-import
 endif
 LDFLAGS +=	-shared
+ifneq ($(OS), ios)
 LDFLAGS +=	-Wl,-soname,$(PLUGIN_SONAME)
 LDFLAGS +=	-Wl,--version-script=version-script.txt 
+endif
 else
 # c and ld flags for main
 ifeq ($(OS),win32)

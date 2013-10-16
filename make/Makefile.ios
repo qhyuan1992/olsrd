@@ -43,11 +43,11 @@ INSTALL_LIB =	install -m 755 $(PLUGIN_FULLNAME) $(LIBDIR)/$(PLUGIN_FULLNAME)
 UNINSTALL_LIB =	rm -f $(LIBDIR)/$(PLUGIN_FULLNAME)
 
 ifeq ($(MAKECMDGOALS),$(LIBNAME))
-LDFLAGS+= -dylib -bundle -flat_namespace -undefined suppress
+LDFLAGS+= -shared -flat_namespace -undefined suppress
 endif
 
 ifdef OLSRD_PLUGIN
-LDFLAGS += -bundle -flat_namespace -undefined suppress
+LDFLAGS += -flat_namespace -undefined suppress
 else
 LDFLAGS += -dynamic
 endif
