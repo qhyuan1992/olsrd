@@ -457,6 +457,17 @@ watchdog_install:
 watchdog_uninstall:
 		$(MAKECMDPREFIX)$(MAKECMD) -C lib/watchdog DESTDIR=$(DESTDIR) uninstall
 
+stdout:
+		$(MAKECMDPREFIX)$(MAKECMD) -C lib/stdout
+
+stdout_clean:
+		$(MAKECMDPREFIX)$(MAKECMD) -C lib/stdout DESTDIR=$(DESTDIR) clean
+
+stdout_install:
+		$(MAKECMDPREFIX)$(MAKECMD) -C lib/stdout DESTDIR=$(DESTDIR) install
+
+stdout_uninstall:
+		$(MAKECMDPREFIX)$(MAKECMD) -C lib/stdout DESTDIR=$(DESTDIR) uninstall
 
 build_all:	all switch libs
 install_all:	install install_libs
