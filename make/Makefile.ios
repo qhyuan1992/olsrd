@@ -13,9 +13,8 @@ SRCS +=		$(wildcard src/bsd/*.c src/unix/*.c)
 HDRS +=		$(wildcard src/bsd/*.h src/unix/*.h)
 
 #####
-
 IOS_BASE_SDK=6.1
-CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -Isrc/mac/
+CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -I$(TOPDIR)/src/mac/ -arch armv7 -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/ -D__IOS__
  
 CPP=$(DEVROOT)/usr/bin/llvm-cpp-4.2
 CXX=$(DEVROOT)/usr/bin/llvm-g++-4.2
@@ -34,9 +33,6 @@ CXXFLAGS+=$(CFLAGS)
 DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
 SDKROOT=$(DEVROOT)/SDKs/iPhoneOS$(IOS_BASE_SDK).sdk
  
-CFLAGS+=-arch armv7 -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/
- 
-
 #####
 
 LIBS +=		
