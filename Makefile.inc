@@ -66,7 +66,7 @@ SHAREDIR ?= $(USRDIR)/share
 DOCDIR   ?= $(SHAREDIR)/doc
 MANDIR   ?= $(SHAREDIR)/man
 EXENAME  ?= olsrd
-LIBNAME  ?= libolsrd.so.1
+LIBNAME  ?= libolsrd.a
 CFGNAME  ?= $(EXENAME).conf
 CFGFILE  ?= $(ETCDIR)/$(CFGNAME)
 
@@ -235,6 +235,10 @@ endif
 
 ifeq ($(OS),linux)
 CPPFLAGS+=-DHTTPINFO_PUD -I$(TOPDIR)/lib -I$(TOPDIR)/lib/pud/nmealib/include -I$(TOPDIR)/lib/pud/wireformat/include
+endif
+
+ifeq ($(MAKECMDGOALS), $(LIBNAME))
+CPPFLAGS+=-D__LIBOLSRD__
 endif
 
 # a make function to quote "/" and "."
