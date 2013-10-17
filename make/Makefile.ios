@@ -13,9 +13,18 @@ SRCS +=		$(wildcard src/bsd/*.c src/unix/*.c)
 HDRS +=		$(wildcard src/bsd/*.h src/unix/*.h)
 
 #####
+#IOS_PLATFORM?=OS
+IOS_PLATFORM?=Simulator
+
+ifeq ($(IOS_PLATFORM),OS)
+IOS_ARCH=armv7
+else
+IOS_ARCH=i386
+endif
+
 IOS_BASE_SDK=6.1
-CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -I$(TOPDIR)/src/mac/ -arch armv7 -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/ -D__IOS__
- 
+CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -I$(TOPDIR)/src/mac/ -arch $(IOS_ARCH) -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/ -D__IOS__
+
 CPP=$(DEVROOT)/usr/bin/llvm-cpp-4.2
 CXX=$(DEVROOT)/usr/bin/llvm-g++-4.2
 CXXCPP=$(DEVROOT)/usr/bin/llvm-cpp-4.2
@@ -25,13 +34,13 @@ AR=$(DEVROOT)/usr/bin/ar
 AS=$(DEVROOT)/usr/bin/as
 NM=$(DEVROOT)/usr/bin/nm
 RANLIB=$(DEVROOT)/usr/bin/ranlib
-LDFLAGS+=-L$(SDKROOT)/usr/lib/ -L$(SDKROOT)/usr/lib/system -arch armv7
+LDFLAGS+=-L$(SDKROOT)/usr/lib/ -L$(SDKROOT)/usr/lib/system -arch $(IOS_ARCH)
  
 CPPFLAGS+=$(CFLAGS)
 CXXFLAGS+=$(CFLAGS)
 
-DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
-SDKROOT=$(DEVROOT)/SDKs/iPhoneOS$(IOS_BASE_SDK).sdk
+DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhone$(IOS_PLATFORM).platform/Developer
+SDKROOT=$(DEVROOT)/SDKs/iPhone$(IOS_PLATFORM)$(IOS_BASE_SDK).sdk
  
 #####
 
@@ -43,7 +52,7 @@ INSTALL_LIB =	install -m 755 $(PLUGIN_FULLNAME) $(LIBDIR)/$(PLUGIN_FULLNAME)
 UNINSTALL_LIB =	rm -f $(LIBDIR)/$(PLUGIN_FULLNAME)
 
 ifeq ($(MAKECMDGOALS),$(LIBNAME))
-LDFLAGS+= -shared -flat_namespace -undefined suppress
+LDFLAGS+= -static -bundle -flat_namespace -undefined suppress
 endif
 
 ifdef OLSRD_PLUGIN
