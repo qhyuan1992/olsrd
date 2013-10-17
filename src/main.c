@@ -306,8 +306,12 @@ static void initRandom(void) {
 /**
  * Main entrypoint
  */
-
+#ifdef __LIBOLSRD__
+int lib_main(int, char **);
+int lib_main(int argc, char *argv[]) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   struct if_config_options *default_ifcnf;
   char conf_file_name[FILENAME_MAX];
   struct ipaddr_str buf;
