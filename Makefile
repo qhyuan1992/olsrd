@@ -73,7 +73,7 @@ ifeq ($(VERBOSE),0)
 		@echo "[LD] $@"
 endif
 ifeq ($(OS), ios)
-		libtool -static -o $@ $^ $(OBJS) #src/*.o src/bsd/*.o src/cfgparser/*.o src/common/*.o
+		libtool -static -o $@ $^
 else
 		$(MAKECMDPREFIX)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 endif
