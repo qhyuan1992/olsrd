@@ -14,6 +14,8 @@ ndk版本r8以下，make OS=android NDK_BASE=/path/to/your/android-ndk-r8 build_
 
 ### ios编译 
 
+ios分支可以参考iOS的PATCH补丁进行修改。[Add support for building for iOS](https://github.com/qhyuan1992/WifiMultiHop_for_iOS/blob/master/include/%5BOlsr-dev%5D%20%5BPATCH%5D%20Add%20support%20for%20building%20for%20iOS)
+
 使用ios分支代码，make OS=ios build_all
 
 根据需求使用include/Makefile.ios.armv7或Makefile.ios.arm64覆盖项目中的makefile文件，两个编译脚本使用的编译器不一样，使用时，去掉cpu类型后缀。
