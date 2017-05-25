@@ -1,0 +1,70 @@
+#
+# MAC OSX SPECIFIC CONFIGURATION
+#
+
+# don't strip executables and bundles for now until we figure out the proper way
+# to do it (flags).
+STRIP = \#
+
+DESTDIR ?=
+LIBDIR =	$(DESTDIR)/usr/lib
+
+SRCS +=		$(wildcard src/bsd/*.c src/unix/*.c)
+HDRS +=		$(wildcard src/bsd/*.h src/unix/*.h)
+
+#####
+IOS_PLATFORM?=OS
+#IOS_PLATFORM?=Simulator
+
+ifeq ($(IOS_PLATFORM),OS)
+IOS_ARCH=arm64
+else
+IOS_ARCH=i386
+endif
+
+IOS_BASE_SDK=10.1
+CFLAGS+=-I$(GLOBAL)_OUTDIR/include -L$(GLOBAL)_OUTDIR/lib -I$(TOPDIR)/src/mac/ -arch $(IOS_ARCH) -pipe -no-cpp-precomp -isysroot $(SDKROOT) -I$(SDKROOT)/usr/include/ -D__IOS__
+
+CPP=/usr/bin/clang
+CXX=/usr/bin/clang++
+CXXCPP=/usr/bin/clang
+CC=/usr/bin/clang
+LD=/usr/bin/ld
+AR=/usr/bin/ar
+AS=/usr/bin/as
+NM=/usr/bin/nm
+RANLIB=/usr/bin/ranlib
+LDFLAGS+=-L$(SDKROOT)/usr/lib/ -L$(SDKROOT)/usr/lib/system -arch $(IOS_ARCH)
+ 
+CPPFLAGS+=$(CFLAGS)
+CXXFLAGS+=$(CFLAGS)
+
+DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhone$(IOS_PLATFORM).platform/Developer
+SDKROOT=$(DEVROOT)/SDKs/iPhone$(IOS_PLATFORM)$(IOS_BASE_SDK).sdk
+ 
+#####
+
+LIBS +=		
+
+PLUGIN_SONAME ?= $(PLUGIN_NAME)
+PLUGIN_FULLNAME ?= $(PLUGIN_NAME).so.$(PLUGIN_VER)
+INSTALL_LIB =	install -m 755 $(PLUGIN_FULLNAME) $(LIBDIR)/$(PLUGIN_FULLNAME)
+UNINSTALL_LIB =	rm -f $(LIBDIR)/$(PLUGIN_FULLNAME)
+
+ifeq ($(MAKECMDGOALS),$(LIBNAME))
+LDFLAGS+= -static -bundle -flat_namespace -undefined suppress
+endif
+
+ifdef OLSRD_PLUGIN
+LDFLAGS += -flat_namespace -undefined suppress
+else
+LDFLAGS += -dynamic
+endif
+
+OS_LIB_PTHREAD =
+OS_CFLAG_PTHREAD =
+OS_LIB_DYNLOAD =
+
+# Local Variables:
+# mode: makefile
+# End:
