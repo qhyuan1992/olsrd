@@ -20,7 +20,9 @@ ios分支可以参考iOS的PATCH补丁进行修改。[Add support for building f
 
 根据需求使用include/Makefile.ios.armv7或Makefile.ios.arm64覆盖项目中的makefile文件，两个编译脚本使用的编译器不一样，使用时，去掉cpu类型后缀。
 
+**编译脚本中的IOS_BASE_SDK版本和安装的xcode版本一致** ，具体位置为：
 
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.1.sdk
 
 ### iphone手机架构
 
